@@ -2,43 +2,31 @@ package database
 
 import (
     "context"
-    "log"
-    "time"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Global MongoDB client and collections
 var (
-    Client *mongo.Client
-    UsersCollection    *mongo.Collection
-    RequestsCollection *mongo.Collection
-    BidsCollection     *mongo.Collection
+    Client              *mongo.Client
+    UsersCollection     *mongo.Collection
+    BidsCollection      *mongo.Collection
     ContractsCollection *mongo.Collection
 )
 
-func ConnectMongoDB() {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    defer cancel()
-
-    clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+// Connect initializes the MongoDB client and collections
+func Connect(uri string) error {
+    clientOptions := options.Client().ApplyURI(uri)
     var err error
-    Client, err = mongo.Connect(ctx, clientOptions)
+    Client, err = mongo.Connect(context.TODO(), clientOptions)
     if err != nil {
-        log.Fatal(err)
+        return err
     }
 
-    // Check the connection
-    err = Client.Ping(ctx, nil)
-    if err != nil {
-        log.Fatal("Failed to connect to MongoDB:", err)
-    }
+    // Set up the collections
+    UsersCollection = Client.Database("your_database").Collection("users")
+    BidsCollection = Client.Database("your_database").Collection("bids")
+    ContractsCollection = Client.Database("your_database").Collection("contracts")
 
-    log.Println("Connected to MongoDB!")
-    
-    // Get references to collections
-    db := Client.Database("your_database")
-    UsersCollection = db.Collection("users")
-    RequestsCollection = db.Collection("requests")
-    BidsCollection = db.Collection("bids")
-    ContractsCollection = db.Collection("contracts")
+    return nil
 }
