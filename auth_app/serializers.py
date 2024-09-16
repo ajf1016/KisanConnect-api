@@ -6,7 +6,8 @@ from auth_app.models import UserProfile
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        exclude = ('password',)
+        # fields = ['id', 'username', 'email']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -15,7 +16,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
-            'user', 'phone', 'address',
+            'user', 'phone', 'address', 'organization',
             'adharcard', 'is_farmer', 'acre_of_land', 'kisan_card',
             'is_buyer', 'gst'
         ]

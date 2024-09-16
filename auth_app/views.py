@@ -24,7 +24,8 @@ def create_user_with_profile(request):
         "acre_of_land": request.data.get('acre_of_land', None),
         "kisan_card": request.data.get('kisan_card', None),
         "is_buyer": request.data.get('is_buyer', False),
-        "gst": request.data.get('gst', None)
+        "gst": request.data.get('gst', None),
+        "organization": request.data.get('organization', None)
     }
 
     # Check for missing fields in user data
@@ -48,6 +49,8 @@ def create_user_with_profile(request):
     if profile_data['is_buyer']:
         if not profile_data['gst']:
             missing_profile_fields.append('gst')
+        if not profile_data['organization']:
+            missing_profile_fields.append('organization')
 
     # Common profile fields
     common_profile_fields = ['phone', 'address', 'adharcard']
