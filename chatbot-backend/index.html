@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbox</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css">
+</head>
+<body>
+    <div id="chat-app">
+        <bot-ui></bot-ui>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/botui/build/botui.min.js"></script>
+    <script>
+        var botui = new BotUI('chat-app');
+
+        // Start conversation
+        botui.message.bot({
+            content: 'Hello! Are you a farmer or a corporation?'
+        }).then(function () {
+            return botui.action.button({
+                action: [
+                    { text: 'Farmer', value: 'farmer' },
+                    { text: 'Corporation', value: 'corporation' }
+                ]
+            });
+        }).then(function (res) {
+            if (res.value == 'farmer') {
+                botui.message.bot({ content: 'How can I assist you today? (Product info, Troubleshooting, Crop advice, etc.)' });
+            } else if (res.value == 'corporation') {
+                botui.message.bot({ content: 'What can I help you with? (Order status, Partnership inquiries, Technical support, etc.)' });
+            }
+
+            // Capture user input and send it to the backend
+            return botui.action.text({
+                action: {
+                    placeholder: 'Type your response here...'
+                }
+            });
+        }).then(function (res) {
+            // Send the user's input to the Go backend
+            sendToBackend(res.value);
+        });
+
+        // Function to send data to the Go backend via API call
+        function sendToBackend(message) {
+            fetch('http://localhost:8080/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            }).then(response => response.text())
+              .then(data => {
+                  botui.message.bot({ content: 'Your message has been submitted: ' + message });
+              }).catch(error => {
+                  botui.message.bot({ content: 'Error submitting message. Please try again.' });
+              });
+        }
+    </script>
+</body>
+</html>
