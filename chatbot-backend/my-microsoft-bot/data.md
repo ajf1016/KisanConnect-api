@@ -1,1 +1,0 @@
-- The bot with the microsft bot it working fine  . But the emulator need to be downloaded .
