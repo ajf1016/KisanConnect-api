@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Contracts</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { margin: 10px 0; padding: 8px; }
+        #response { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1> Contracts</h1>
+
+    <h2>Create Demand</h2>
+    <input type="text" id="userName" placeholder="Enter Required crop name ">
+    <button onclick="createUser()">Submit </button>
+
+    <h2>Create Bid</h2>
+    <input type="text" id="bidAmount" placeholder="Enter bid amount">
+    <input type="text" id="requestID" placeholder="Enter request ID">
+    <input type="text" id="userID" placeholder="Enter user ID">
+    <button onclick="createBid()">Create Bid</button>
+
+    <h2>Create Contract</h2>
+    <input type="text" id="contractRequestID" placeholder="Enter request ID">
+    <input type="text" id="contractBidID" placeholder="Enter bid ID">
+    <input type="text" id="contractStatus" placeholder="Enter contract status">
+    <button onclick="createContract()">Create Contract</button>
+
+    <div id="response"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

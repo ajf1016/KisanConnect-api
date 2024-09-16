@@ -9,7 +9,6 @@ import (
     "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// CreateBid handles the creation of a new bid
 func CreateBid(w http.ResponseWriter, r *http.Request) {
     var bid models.Bid
     if err := json.NewDecoder(r.Body).Decode(&bid); err != nil {
