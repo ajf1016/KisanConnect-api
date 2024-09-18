@@ -15,11 +15,9 @@ SECRET_KEY = 'django-insecure-x0^!13g36)if&91&d*gedv)6t(nz2sl%0h7etq6*#xw&zk#i!q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'localhost']
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-]
+
+ALLOWED_HOSTS = [".railway.app",]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 
