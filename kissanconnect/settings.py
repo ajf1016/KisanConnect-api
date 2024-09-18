@@ -2,18 +2,18 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG') == 'True'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x0^!13g36)if&91&d*gedv)6t(nz2sl%0h7etq6*#xw&zk#i!q'
+
+SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = DEBUG
 
 
 ALLOWED_HOSTS = [".railway.app",]
