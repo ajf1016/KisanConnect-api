@@ -15,11 +15,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = [
-            'user', 'phone', 'address', 'organization',
-            'adharcard', 'is_farmer', 'acre_of_land', 'kisan_card',
-            'is_buyer', 'gst'
-        ]
+        fields = ['id',
+                  'user', 'phone', 'address', 'organization',
+                  'adharcard', 'is_farmer', 'acre_of_land', 'kisan_card',
+                  'is_buyer', 'gst'
+                  ]
 
     def create(self, validated_data):
         user_data = self.context['user_data']

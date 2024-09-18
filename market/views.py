@@ -1,18 +1,14 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Q
 from auth_app.models import UserProfile
 from rest_framework import status
 from django.db import IntegrityError
-from django.db import transaction as db_transaction
-from .models import Auction, Bid, Wallet, Escrow, Transaction
+from .models import Auction, Bid, Wallet, Escrow
 from decimal import Decimal
 
-
-from .serializers import FarmerProfileSerializer, BuyerProfileSerializer, AuctionSerializer, BidSerializer
+from .serializers import FarmerProfileSerializer, BuyerProfileSerializer, AuctionSerializer, BidSerializer, WalletSerializer
 
 # API to search farmers based on location, crops, and rating
 
@@ -171,74 +167,71 @@ def submit_bid(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def accept_bid(request):
-    buyer = request.user
-    auction_id = request.data.get('auction_id')
+    buyer_id = request.data.get('buyer_id')
     bid_id = request.data.get('bid_id')
 
-    # Get the Auction and Bid details
-    auction = get_object_or_404(
-        Auction, id=auction_id, buyer=buyer, is_completed=False)
-    bid = get_object_or_404(Bid, id=bid_id, auction=auction)
-
     try:
-        # Start a transaction
-        with db_transaction.atomic():
-            buyer_wallet = get_object_or_404(Wallet, user=buyer)
-            # Assuming auction has a farmer attribute
-            farmer_wallet = get_object_or_404(Wallet, user=auction.farmer)
+        # Fetch the bid based on the bid_id
+        bid = Bid.objects.get(id=bid_id)
 
-            # Check if buyer has enough balance for the bid
-            if buyer_wallet.balance < bid.bid_amount:
-                return Response({
-                    "status_code": 6003,
-                    "message": "Insufficient funds in the buyer's wallet."
-                }, status=status.HTTP_400_BAD_REQUEST)
+        # Fetch the buyer's wallet
+        buyer_wallet = Wallet.objects.get(user_id=buyer_id)
 
-            # Calculate escrow (20%) and farmer amount (80%)
-            escrow_amount = bid.bid_amount * Decimal(0.20)
-            farmer_amount = bid.bid_amount * Decimal(0.80)
+        # Calculate the escrow amount (20% of the bid amount)
+        escrow_amount = (bid.bid_amount * bid.bid_quantity) * Decimal('0.20')
 
-            # Deduct from buyer's wallet and transfer to escrow
-            buyer_wallet.balance -= bid.bid_amount
-            buyer_wallet.save()
+        # Check if the buyer has enough balance
+        if buyer_wallet.balance >= escrow_amount:
+            # Deduct the amount from buyer's wallet
+            buyer_wallet.balance -= escrow_amount
+            buyer_wallet.save()  # Save changes to the database
 
-            # Create an Escrow entry (assuming you have an Escrow model)
-            Escrow.objects.create(
-                buyer=buyer,
-                farmer=auction.farmer,
-                amount=escrow_amount,
-                is_released=False
-            )
+            # Deposit the amount into escrow
+            Escrow.objects.create(bid=bid, amount=escrow_amount)
 
-            # Transfer 80% to the farmer's wallet
-            farmer_wallet.balance += farmer_amount
-            farmer_wallet.save()
+            return Response({
+                'status': 'success',
+                'message': f'Bid accepted. {escrow_amount} deposited in escrow.'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'status': 'failure',
+                'message': 'Insufficient balance.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Mark the auction as completed
-            auction.is_completed = True
-            auction.save()
-
-            # Create a transaction log (assuming you have a Transaction model)
-            Transaction.objects.create(
-                auction=auction,
-                bid=bid,
-                buyer=buyer,
-                farmer=auction.farmer,
-                escrow_amount=escrow_amount,
-                farmer_receive_amount=farmer_amount,
-                is_completed=True
-            )
-
+    except Bid.DoesNotExist:
         return Response({
-            "status_code": 6000,
-            "message": "Bid accepted, transaction completed successfully.",
-        }, status=status.HTTP_200_OK)
-
+            'status': 'failure',
+            'message': 'Bid not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Wallet.DoesNotExist:
+        return Response({
+            'status': 'failure',
+            'message': 'Wallet not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({
-            "status_code": 6004,
-            "message": "An error occurred during the transaction.",
-            "error": str(e)
+            'status': 'failure',
+            'message': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_wallet(request):
+    wallet = Wallet.objects.all()  # Retrieve all auctions
+
+    if not wallet.exists():  # Check if there are any auctions
+        return Response({
+            "status_code": 6002,
+            "message": "wallet is empty",
+            "auctions": []
+        }, status=404)
+
+    serializer = WalletSerializer(wallet, many=True)
+    return Response({
+        "status_code": 6000,
+        "message": "wallet balance retrieved successfully",
+        "data": serializer.data
+    }, status=200)

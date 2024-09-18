@@ -1,6 +1,6 @@
 from auth_app.models import UserProfile
 from rest_framework import serializers
-from .models import Auction, Bid
+from .models import Auction, Bid, Wallet
 
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
@@ -22,17 +22,30 @@ class BuyerProfileSerializer(serializers.ModelSerializer):
         ]
 
 
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = [
+            'user',           # Link to the User model (username, email)
+            'balance',          # Contact information
+        ]
+
+
 class AuctionSerializer(serializers.ModelSerializer):
     buyer_name = serializers.SerializerMethodField()
+    buyer_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Auction
-        fields = ['id', 'buyer_name', 'crop_name', 'variety_of_crop',
+        fields = ['id', 'buyer_name', 'buyer_id', 'crop_name', 'variety_of_crop',
                   'quantity', 'price', 'is_completed', 'created_at']
         read_only_fields = ['buyer', 'created_at']
 
     def get_buyer_name(self, obj):
         return obj.buyer.username
+
+    def get_buyer_id(self, obj):
+        return obj.buyer.id
 
 
 class BidSerializer(serializers.ModelSerializer):

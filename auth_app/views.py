@@ -115,7 +115,8 @@ def login_user(request):
             "is_farmer": user_profile.is_farmer,
             "is_buyer": user_profile.is_buyer,
             "phone": user_profile.phone,
-            "name": user.username
+            "name": user.username,
+            "user_id": user.id
 
         }, status=200)
     else:

@@ -1,5 +1,5 @@
 from django.urls import path
-from market.views import search_buyers, search_farmers, create_auction, list_auctions, submit_bid, accept_bid
+from market.views import search_buyers, search_farmers, create_auction, list_auctions, submit_bid, accept_bid, get_wallet
 
 urlpatterns = [
     path('search-buyer/', search_buyers, name='search_buyers'),
@@ -7,5 +7,6 @@ urlpatterns = [
     path('create-auction/', create_auction, name='create_auction'),
     path('list-auctions/', list_auctions, name='list_auctions'),
     path('submit-bid/', submit_bid, name='submit_bid'),
-    path('accept-bid/', accept_bid, name='accept_bid'),
+    path('accept_bid/', accept_bid, name='accept_bid'),
+    path('wallet-balance/', get_wallet, name='get_wallet'),
 ]
