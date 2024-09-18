@@ -22,6 +22,10 @@ DEBUG = DEBUG
 
 ALLOWED_HOSTS = [".railway.app",]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://kisanconnect-api-production.up.railway.app'
+]
+
 # CORS_ALLOW_ALL_ORIGINS = True
 
 
