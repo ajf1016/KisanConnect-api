@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from auth_app.serializers import UserProfileSerializer, UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from .models import UserProfile
 
 
 @api_view(['POST'])
@@ -102,6 +103,7 @@ def login_user(request):
         }, status=400)
 
     user = authenticate(username=username, password=password)
+    user_profile = user.profile
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
@@ -110,6 +112,11 @@ def login_user(request):
             "message": "Login successful",
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "is_farmer": user_profile.is_farmer,
+            "is_buyer": user_profile.is_buyer,
+            "phone": user_profile.phone,
+            "name": user.username
+
         }, status=200)
     else:
         return Response({

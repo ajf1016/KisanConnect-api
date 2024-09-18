@@ -1,13 +1,10 @@
 # market/admin.py
 
 from django.contrib import admin
-from .models import ChatRoom
+from .models import Auction, Bid, Wallet, Escrow, Transaction
 
-
-class ChatRoomAdmin(admin.ModelAdmin):
-    list_display = ('id', 'buyer', 'farmer', 'created_at')
-    search_fields = ('buyer__username', 'farmer__username')
-    list_filter = ('created_at',)
-
-
-admin.site.register(ChatRoom, ChatRoomAdmin)
+admin.site.register(Auction)
+admin.site.register(Bid)
+admin.site.register(Wallet)
+admin.site.register(Escrow)
+admin.site.register(Transaction)
